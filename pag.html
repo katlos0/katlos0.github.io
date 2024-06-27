@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<style>
+    body {
+        animation: changeBackground 15s infinite;
+        position: relative;
+    }
+
+    @keyframes changeBackground {
+        0% {
+            background-color: rgba(144, 183, 230, 0.459); 
+        }
+        25% {
+            background-color: rgba(238, 153, 185, 0.514); 
+        }
+        50% {
+            background-color: rgba(175, 34, 55, 0.466); 
+        }
+        65% {
+            background-color: rgba(111, 194, 194, 0.555); 
+        }
+        75% {
+            background-color: rgba(226, 89, 62, 0.473);
+        }
+        100% {
+            background-color: rgba(76, 129, 128, 0.486); 
+        }
+    }
+
+    #login-form, #register-form {
+        text-align: center;
+        margin: 0 auto; 
+        max-width: 400px; 
+        background: rgba(255, 255, 255, 0.8); 
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin-top: 50px; 
+    }
+
+    #login-form h2, #register-form h2 {
+        font-size: 2.5rem; 
+        font-weight: bold; 
+        color: #333; 
+        text-transform: uppercase; 
+        margin-bottom: 30px; 
+    }
+
+    #login-username, #login-password, #register-username, #register-password {
+        margin-bottom: 20px;
+    }
+
+    #user-actions h2 {
+        text-align: center;
+        font-size: 3rem; 
+        font-weight: bold;
+        color: #333; 
+        text-transform: uppercase;
+        margin-top: 50px; 
+        font-family: 'Arial Black', sans-serif; 
+    }
+
+    #add-user-form {
+        text-align: center;
+        margin: 0 auto; 
+        max-width: 400px; 
+        background: rgba(255, 255, 255, 0.8); 
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin-top: 50px; 
+    }
+
+    #add-user-form h4 {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    #first_name, #last_name, #email, #avatar {
+        margin-bottom: 15px;
+    }
+
+    #video-container {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        min-width: 100%; 
+        min-height: 100%;
+        z-index: -1;
+        overflow: hidden;
+    }
+
+    #video-background {
+        width: auto;
+        height: auto;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        opacity: 0.4;
+    }
+</style>
+<body>
+    <div id="video-container">
+        <video autoplay loop muted id="video-background">
+            <source src="video.mp4" type="video/mp4"> 
+            Tu navegador no soporta videos HTML5.
+        </video>
+    </div>
+
+    <div class="container">
+        <div id="login-form">
+            <h2>Iniciar Sesión</h2>
+            <input type="text" id="login-username" placeholder="Nombre de usuario" class="form-control mb-2">
+            <input type="password" id="login-password" placeholder="Contraseña" class="form-control mb-2">
+            <button class="btn btn-primary" onclick="login()">Iniciar Sesión</button>
+            <button class="btn btn-secondary" onclick="mostrarFormularioRegistro()">Registrarse</button>
+        </div>
+
+        <div id="register-form" style="display: none;">
+            <h2>Registrarse</h2>
+            <input type="text" id="register-username" placeholder="Nombre de usuario" class="form-control mb-2">
+            <input type="password" id="register-password" placeholder="Contraseña" class="form-control mb-2">
+            <button class="btn btn-success" onclick="registrar()">Registrarse</button>
+            <button class="btn btn-secondary" onclick="mostrarFormularioLogin()">Volver al Inicio de Sesión</button>
+        </div>
+
+        <div id="user-actions" style="display: none;">
+            <h2>Gestionar Usuarios</h2>
+            <div class="row">
+                <div class="col-sm-4"></div> <!-- Columna izquierda vacía -->
+                <div class="col-sm-4">
+                    <div id="add-user-form">
+                        <h4>Agregar Usuario</h4>
+                        <input type="text" id="first_name" placeholder="Nombre" class="form-control mb-2">
+                        <input type="text" id="last_name" placeholder="Apellido" class="form-control mb-2">
+                        <input type="email" id="email" placeholder="Correo Electrónico" class="form-control mb-2">
+                        <input type="text" id="avatar" placeholder="URL del Avatar" class="form-control mb-2">
+                        <button class="btn btn-success" onclick="agregarUsuario()">Agregar Usuario</button>
+                        <button class="btn btn-secondary " onclick="cerrarSesion()">Cerrar sesión</button>
+                    </div>
+                </div>
+                <div class="col-sm-4"></div> <!-- Columna derecha vacía -->
+            </div>
+
+            <div id="users-list" class="row mt-4"></div>
+        </div>
+
+        <div id="resources-list" class="row mt-4"></div>
+    </div>
+
+    <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="infoModalLabel">Detalles</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="info-details"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="pag.js"></script>
+</body>
+</html>
